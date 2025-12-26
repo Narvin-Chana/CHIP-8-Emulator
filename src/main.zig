@@ -4,6 +4,7 @@ const build_options = @import("build_options");
 
 const chip8 = @import("chip8.zig");
 const color_palette = @import("color_palette.zig");
+const ia = @import("input_accumulator.zig");
 
 fn roundUp(a: u32, b: u32) u32 {
     return std.math.ceil(a / @as(f32, b)) * b;
@@ -20,6 +21,7 @@ const EmulatorMode = enum {
 
 const CmdLineArgs = struct {
     emulator_mode: EmulatorMode = EmulatorMode.Demos,
+    is_azerty: bool = false,
 
     fn init(allocator: std.mem.Allocator) !CmdLineArgs {
         var cmdLineArgs: CmdLineArgs = .{};
@@ -47,7 +49,7 @@ const CmdLineArgs = struct {
                 'd', 'D' => cmdLineArgs.emulator_mode = EmulatorMode.Demos,
                 't', 'T' => cmdLineArgs.emulator_mode = EmulatorMode.Tests,
                 'g', 'G' => cmdLineArgs.emulator_mode = EmulatorMode.Games,
-                'a', 'A' => chip8.is_azerty = true,
+                'a', 'A' => cmdLineArgs.is_azerty = true,
                 else => {
                     std.log.err("Unrecognized argument: {s}.\nUse -h for help!", .{arg});
                     return error.UnrecognizedArg;
@@ -117,6 +119,8 @@ pub fn main() !void {
     // Read command line args.
     const args: CmdLineArgs = CmdLineArgs.init(gpa.allocator()) catch std.process.exit(0);
 
+    var input_accumulator = ia.InputAccumulator.init(args.is_azerty);
+
     // Obtain the roms we will use (imported at compile-time in build.zig).
     const roms = switch (args.emulator_mode) {
         EmulatorMode.Demos => &build_options.demo_roms,
@@ -176,7 +180,7 @@ pub fn main() !void {
         }
 
         if (update_emulator) {
-            chip8.update(rl.getFrameTime(), rnd.random());
+            chip8.update(rl.getFrameTime(), rnd.random(), &input_accumulator);
         }
 
         // Check if we want to randomize the palette

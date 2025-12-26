@@ -1,6 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 const stack_module = @import("stack.zig");
+const ia = @import("input_accumulator.zig");
 
 // CHIP-8 uses 12 bit addresses.
 const Address = u12;
@@ -111,7 +112,7 @@ pub fn deinit() void {
     stack.deinit();
 }
 
-pub fn update(delta_time: f32, rnd: std.Random) void {
+pub fn update(delta_time: f32, rnd: std.Random, input_accumulator: *ia.InputAccumulator) void {
     // Update timers (they are independant of the instruction tick cycle)
     timer_clock += delta_time;
     while (timer_clock > time_to_timer_tick) {
@@ -123,6 +124,8 @@ pub fn update(delta_time: f32, rnd: std.Random) void {
     // Update CPU
     cpu_clock += delta_time;
     while (cpu_clock > time_to_cpu_tick) {
+        input_accumulator.update();
+
         // Fetch instruction to execute from memory (two bytes which are pointed to by the PC)
         const instruction: Instruction = std.mem.readInt(Instruction, state.memory[state.program_counter..][0..2], std.builtin.Endian.big);
         // std.debug.print("Instruction: 0x{X:0>4}\n", .{instruction});
@@ -131,9 +134,11 @@ pub fn update(delta_time: f32, rnd: std.Random) void {
         incrementPC();
 
         // Decode and execute instruction.
-        decodeAndExecute(instruction, rnd);
+        decodeAndExecute(instruction, rnd, input_accumulator);
 
         cpu_clock = @max(cpu_clock - time_to_cpu_tick, 0);
+
+        input_accumulator.reset();
     }
 }
 
@@ -151,41 +156,7 @@ fn decrementPC() void {
     state.program_counter -%= 2;
 }
 
-pub var is_azerty: bool = false;
-
-fn convertInputToKey(key: u4) rl.KeyboardKey {
-    switch (key) {
-        0x1 => return rl.KeyboardKey.one,
-        0x2 => return rl.KeyboardKey.two,
-        0x3 => return rl.KeyboardKey.three,
-        0xC => return rl.KeyboardKey.four,
-
-        0x4 => return if (!is_azerty) rl.KeyboardKey.q else rl.KeyboardKey.a,
-        0x5 => return if (!is_azerty) rl.KeyboardKey.w else rl.KeyboardKey.z,
-        0x6 => return rl.KeyboardKey.e,
-        0xD => return rl.KeyboardKey.r,
-
-        0x7 => return if (!is_azerty) rl.KeyboardKey.a else rl.KeyboardKey.q,
-        0x8 => return rl.KeyboardKey.s,
-        0x9 => return rl.KeyboardKey.d,
-        0xE => return rl.KeyboardKey.f,
-
-        0xA => return if (!is_azerty) rl.KeyboardKey.z else rl.KeyboardKey.w,
-        0x0 => return rl.KeyboardKey.x,
-        0xB => return rl.KeyboardKey.c,
-        0xF => return rl.KeyboardKey.v,
-    }
-}
-
-fn isKeyDown(key: u4) bool {
-    return rl.isKeyDown(convertInputToKey(key));
-}
-
-fn isKeyReleased(key: u4) bool {
-    return rl.isKeyReleased(convertInputToKey(key));
-}
-
-fn decodeAndExecute(instruction: Instruction, rnd: std.Random) void {
+fn decodeAndExecute(instruction: Instruction, rnd: std.Random, input_accumulator: *const ia.InputAccumulator) void {
     const op = @as(u4, @truncate(instruction >> 12));
     const x = @as(u4, @truncate(instruction >> 8));
     const y = @as(u4, @truncate(instruction >> 4));
@@ -325,9 +296,9 @@ fn decodeAndExecute(instruction: Instruction, rnd: std.Random) void {
         },
         0xE => switch (nn) {
             // EX9E: Skip if key pressed
-            0x9E => if (isKeyDown(@as(u4, @truncate(vx)))) incrementPC(),
+            0x9E => if (input_accumulator.isKeyDown(@as(u4, @truncate(vx)))) incrementPC(),
             // EXA1: Skip if key not pressed
-            0xA1 => if (!isKeyDown(@as(u4, @truncate(vx)))) incrementPC(),
+            0xA1 => if (!input_accumulator.isKeyDown(@as(u4, @truncate(vx)))) incrementPC(),
             else => executionError(ExecutionError.UnsupportedInstruction, instruction),
         },
         0xF => switch (nn) {
@@ -336,7 +307,7 @@ fn decodeAndExecute(instruction: Instruction, rnd: std.Random) void {
             // FX0A: Block and wait for input
             0x0A => {
                 for (0..16) |key| {
-                    if (isKeyReleased(@as(u4, @truncate(key)))) {
+                    if (input_accumulator.isKeyReleased(@as(u4, @truncate(key)))) {
                         state.variable_registers[x] = @as(u8, @truncate(key));
                         return;
                     }
