@@ -116,16 +116,10 @@ pub fn build(b: *std.Build) void {
     });
 
     // Also include the text files for displaying to the user the controls etc before they play a game.
-    options.addOption([75][]const u8, "game_roms", .{
-        @embedFile("chip8-roms/games/15 Puzzle [Roger Ivie].ch8"),
-        @embedFile("chip8-roms/games/15 Puzzle [Roger Ivie] (alt).ch8"),
-        @embedFile("chip8-roms/games/Addition Problems [Paul C. Moews].ch8"),
-        @embedFile("chip8-roms/games/Airplane.ch8"),
-        @embedFile("chip8-roms/games/Animal Race [Brian Astle].ch8"),
+    options.addOption([68][]const u8, "game_roms", .{
         @embedFile("chip8-roms/games/Astro Dodge [Revival Studios, 2008].ch8"),
-        @embedFile("chip8-roms/games/Biorhythm [Jef Winsor].ch8"),
-        @embedFile("chip8-roms/games/Blinky [Hans Christian Egeberg, 1991].ch8"),
-        @embedFile("chip8-roms/games/Blinky [Hans Christian Egeberg] (alt).ch8"),
+        @embedFile("chip8-roms/games/15 Puzzle [Roger Ivie].ch8"),
+        @embedFile("chip8-roms/games/Airplane.ch8"),
         @embedFile("chip8-roms/games/Blitz [David Winter].ch8"),
         @embedFile("chip8-roms/games/Bowling [Gooitzen van der Wal].ch8"),
         @embedFile("chip8-roms/games/Breakout (Brix hack) [David Winter, 1997].ch8"),
@@ -136,7 +130,6 @@ pub fn build(b: *std.Build) void {
         @embedFile("chip8-roms/games/Coin Flipping [Carmelo Cortez, 1978].ch8"),
         @embedFile("chip8-roms/games/Connect 4 [David Winter].ch8"),
         @embedFile("chip8-roms/games/Craps [Camerlo Cortez, 1978].ch8"),
-        @embedFile("chip8-roms/games/Deflection [John Fort].ch8"),
         @embedFile("chip8-roms/games/Figures.ch8"),
         @embedFile("chip8-roms/games/Filter.ch8"),
         @embedFile("chip8-roms/games/Guess [David Winter] (alt).ch8"),
@@ -194,16 +187,10 @@ pub fn build(b: *std.Build) void {
         @embedFile("chip8-roms/games/ZeroPong [zeroZshadow, 2007].ch8"),
     });
 
-    options.addOption([75][:0]const u8, "game_rom_names", .{
-        "15 Puzzle [Roger Ivie]",
-        "15 Puzzle [Roger Ivie] (alt)",
-        "Addition Problems [Paul C. Moews]",
-        "Airplane",
-        "Animal Race [Brian Astle]",
+    options.addOption([68][:0]const u8, "game_rom_names", .{
         "Astro Dodge [Revival Studios, 2008]",
-        "Biorhythm [Jef Winsor]",
-        "Blinky [Hans Christian Egeberg, 1991]",
-        "Blinky [Hans Christian Egeberg] (alt)",
+        "15 Puzzle [Roger Ivie]",
+        "Airplane",
         "Blitz [David Winter]",
         "Bowling [Gooitzen van der Wal]",
         "Breakout (Brix hack) [David Winter, 1997]",
@@ -214,7 +201,6 @@ pub fn build(b: *std.Build) void {
         "Coin Flipping [Carmelo Cortez, 1978]",
         "Connect 4 [David Winter]",
         "Craps [Camerlo Cortez, 1978]",
-        "Deflection [John Fort]",
         "Figures",
         "Filter",
         "Guess [David Winter] (alt)",
@@ -272,16 +258,10 @@ pub fn build(b: *std.Build) void {
         "ZeroPong [zeroZshadow, 2007]",
     });
 
-    options.addOption([75]?[:0]const u8, "game_rom_txts", .{
-        @embedFile("chip8-roms/games/15 Puzzle [Roger Ivie].txt"),
-        null, // 15 Puzzle [Roger Ivie] (alt)
-        null, // Addition Problems [Paul C. Moews]
-        null, // Airplane
-        @embedFile("chip8-roms/games/Animal Race [Brian Astle].txt"),
+    options.addOption([68]?[:0]const u8, "game_rom_txts", .{
         @embedFile("chip8-roms/games/Astro Dodge [Revival Studios, 2008].txt"),
-        @embedFile("chip8-roms/games/Biorhythm [Jef Winsor].txt"),
-        null, // Blinky [Hans Christian Egeberg, 1991]
-        null, // Blinky [Hans Christian Egeberg] (alt)
+        @embedFile("chip8-roms/games/15 Puzzle [Roger Ivie].txt"),
+        null, // Airplane
         @embedFile("chip8-roms/games/Blitz [David Winter].txt"),
         @embedFile("chip8-roms/games/Bowling [Gooitzen van der Wal].txt"),
         @embedFile("chip8-roms/games/Breakout (Brix hack) [David Winter, 1997].txt"),
@@ -292,7 +272,6 @@ pub fn build(b: *std.Build) void {
         @embedFile("chip8-roms/games/Coin Flipping [Carmelo Cortez, 1978].txt"),
         @embedFile("chip8-roms/games/Connect 4 [David Winter].txt"),
         @embedFile("chip8-roms/games/Craps [Camerlo Cortez, 1978].txt"),
-        @embedFile("chip8-roms/games/Deflection [John Fort].txt"),
         null, // Figures
         null, // Filter
         @embedFile("chip8-roms/games/Guess [David Winter] (alt).txt"),
