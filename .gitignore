@@ -1,0 +1,4 @@
+chip8-roms
+chip8-test-suite
+.zig-cache
+zig-out
